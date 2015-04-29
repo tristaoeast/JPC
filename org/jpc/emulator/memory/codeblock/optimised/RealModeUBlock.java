@@ -34,6 +34,10 @@ import org.jpc.emulator.memory.codeblock.*;
 
 import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 /**
  * 
  * @author Chris Dennis
@@ -67,6 +71,25 @@ public class RealModeUBlock implements RealModeCodeBlock
     private int executeCount;
     public static OpcodeLogger opcodeCounter = null;//new OpcodeLogger("RM Stats:");
 
+    public void writeToFile(String whatToWrite){
+        
+        try{
+            File file = new File("/home/mariana/Área de Trabalho/AVExe/profiling.xls");
+    
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+    
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(whatToWrite);
+            bw.close();
+        } catch (IOException e) {
+        e.printStackTrace();
+        }
+    }    
+    
     public RealModeUBlock()
     {
     }
@@ -1510,6 +1533,7 @@ public class RealModeUBlock implements RealModeCodeBlock
     	    	end = System.currentTimeMillis();
     	    	timesMC[mc] += end-start;
 	    }
+	    writeToFile(timesMC.toString());
 	} 
         catch (ProcessorException e) 
         {
