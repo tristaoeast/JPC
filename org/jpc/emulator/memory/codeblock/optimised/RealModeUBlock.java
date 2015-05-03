@@ -26,6 +26,9 @@
 
 package org.jpc.emulator.memory.codeblock.optimised;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.*;
 
 import org.jpc.emulator.processor.*;
@@ -37,6 +40,7 @@ import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Writer;
 import java.io.IOException;
 /**
  * 
@@ -70,24 +74,37 @@ public class RealModeUBlock implements RealModeCodeBlock
     protected int[] cumulativeX86Length;
     private int executeCount;
     public static OpcodeLogger opcodeCounter = null;//new OpcodeLogger("RM Stats:");
+    private static final String FILEPATH = "/home/mariana/Área de Trabalho/AVExe/profiling.xls";
+    List<String> prof_list = new ArrayList<String>();
+    
+    public void writeToFileUsingBuffer(List<String> whatToWrite){
+        File file = new File(FILEPATH);
+        Writer fileWriter = null;
+        BufferedWriter bufferedWriter = null;
 
-    public void writeToFile(String whatToWrite){
-        
         try{
-            File file = new File("/home/mariana/Área de Trabalho/AVExe/profiling.xls");
-    
-            // if file doesnt exists, then create it
-            if (!file.exists()) {
-                file.createNewFile();
+            fileWriter = new FileWriter(file);
+            bufferedWriter = new BufferedWriter(fileWriter);
+            
+            for(String line : whatToWrite){
+                line += System.getProperty("line.separator");
+                bufferedWriter.write(line);
             }
-    
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(whatToWrite);
-            bw.close();
-        } catch (IOException e) {
-        e.printStackTrace();
+        } catch (IOException e){
+            System.err.println("Error writing the file... ");
+            e.printStackTrace();
+        } finally {
+            if(bufferedWriter != null && fileWriter != null) {
+                try{
+                    bufferedWriter.close();
+                    fileWriter.close();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
         }
+            
+        //System.out.println("############################################# "+whatToWrite+" #############################################\n");
     }    
     
     public RealModeUBlock()
@@ -1360,11 +1377,11 @@ public class RealModeUBlock implements RealModeCodeBlock
 
 	int position = 0;
 
-	int[] timesMC = new int[755];
-	int[] frequencyMC = new int[755];
+	long[] timesMC = new long[755];
+	long[] frequencyMC = new long[755];
 	long start;
 	long end;
-	
+    prof_list.add("mc\ttimesMC[mc]\tfrequencyMC[mc]");
 	
 	try 
         {
@@ -1532,8 +1549,8 @@ public class RealModeUBlock implements RealModeCodeBlock
 		}
     	    	end = System.currentTimeMillis();
     	    	timesMC[mc] += end-start;
+    	    	prof_list.add(String.valueOf(mc)+"\t"+String.valueOf(timesMC[mc])+"\t"+String.valueOf(frequencyMC[mc]));
 	    }
-	    writeToFile(timesMC.toString());
 	} 
         catch (ProcessorException e) 
         {
@@ -1558,7 +1575,8 @@ public class RealModeUBlock implements RealModeCodeBlock
 	    
 	    cpu.handleRealModeException(e);
         }
-
+	
+	writeToFileUsingBuffer(prof_list);
 	return Math.max(executeCount, 0);      
     }
 
