@@ -43,7 +43,7 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.io.IOException;
 
-import physis.core.virtualmachine.InstructionSet;
+//import physis.core.virtualmachine.InstructionSet;
 
 
 /**
