@@ -42,6 +42,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.io.IOException;
+
+import physis.core.virtualmachine.InstructionSet;
+
+
 /**
  * 
  * @author Chris Dennis
@@ -74,19 +78,33 @@ public class RealModeUBlock implements RealModeCodeBlock
     protected int[] cumulativeX86Length;
     private int executeCount;
     public static OpcodeLogger opcodeCounter = null;//new OpcodeLogger("RM Stats:");
-    private static final String FILEPATH = "/home/mariana/Área de Trabalho/AVExe/profiling.xls";
-    List<String> prof_list = new ArrayList<String>();
+    //private static final String FILEPATH = "/home/mariana/Área de Trabalho/AVExe/profiling.xls";
+    private static final String FILEPATH = "./profiling.xls";
+    private static boolean firstPass = true;
+	public static long[] timesMC = new long[755];
+	public static long[] frequencyMC = new long[755];
+    public static List<String> prof_list = new ArrayList<String>();
     
-    public void writeToFileUsingBuffer(List<String> whatToWrite){
+    public static void writeToFileUsingBuffer(){
+
+	    	File oldFile = new File(FILEPATH);
+	    	oldFile.delete();
+    	
+    	prof_list.add("mc\ttimesMC[mc]\tfrequencyMC[mc]");
+    	for(int i  = 0; i < 755; i++){
+    		prof_list.add(String.valueOf(i)+"\t"+String.valueOf(timesMC[i])+"\t"+String.valueOf(frequencyMC[i]));
+    		
+    	}
+    	
         File file = new File(FILEPATH);
         Writer fileWriter = null;
         BufferedWriter bufferedWriter = null;
 
         try{
-            fileWriter = new FileWriter(file);
+            fileWriter = new FileWriter(file, true);
             bufferedWriter = new BufferedWriter(fileWriter);
-            
-            for(String line : whatToWrite){
+
+            for(String line : prof_list){
                 line += System.getProperty("line.separator");
                 bufferedWriter.write(line);
             }
@@ -103,6 +121,7 @@ public class RealModeUBlock implements RealModeCodeBlock
                 }
             }
         }
+
             
         //System.out.println("############################################# "+whatToWrite+" #############################################\n");
     }    
@@ -1377,17 +1396,17 @@ public class RealModeUBlock implements RealModeCodeBlock
 
 	int position = 0;
 
-	long[] timesMC = new long[755];
-	long[] frequencyMC = new long[755];
+
 	long start;
 	long end;
-    prof_list.add("mc\ttimesMC[mc]\tfrequencyMC[mc]");
+    //prof_list.add("mc\ttimesMC[mc]\tfrequencyMC[mc]");
 	
 	try 
         {
 	    while (position < microcodes.length) {
 
-	    	start = System.currentTimeMillis();
+	    	//start = System.currentTimeMillis();
+	    	start = System.nanoTime();
                 if (uCodeXferLoaded)
                 {
                     uCodeXferLoaded = false;
@@ -1519,7 +1538,7 @@ public class RealModeUBlock implements RealModeCodeBlock
 		case JNA_O8: jna_o8((byte)reg0); break;
 
 		default:
-		    {
+		{
 			//copy local variables to instance storage
 			transferSeg0 = seg0;
 			transferAddr0 = addr0;
@@ -1545,11 +1564,13 @@ public class RealModeUBlock implements RealModeCodeBlock
 			    eipUpdated = transferEipUpdated;
 			    position = transferPosition;
 			}
-		    } break;
+		 } break;
 		}
-    	    	end = System.currentTimeMillis();
+    	    	//end = System.currentTimeMillis();
+        	    end = System.nanoTime();
     	    	timesMC[mc] += end-start;
-    	    	prof_list.add(String.valueOf(mc)+"\t"+String.valueOf(timesMC[mc])+"\t"+String.valueOf(frequencyMC[mc]));
+    	    	//prof_list.add(String.valueOf(mc)+"\t"+String.valueOf(timesMC[mc])+"\t"+String.valueOf(frequencyMC[mc]));
+    	    	//prof_list.add(String.valueOf(mc)+"\t"+System.nanoTime()+"\t"+String.valueOf(frequencyMC[mc]));
 	    }
 	} 
         catch (ProcessorException e) 
@@ -1576,7 +1597,7 @@ public class RealModeUBlock implements RealModeCodeBlock
 	    cpu.handleRealModeException(e);
         }
 	
-	writeToFileUsingBuffer(prof_list);
+	//writeToFileUsingBuffer(prof_list);
 	return Math.max(executeCount, 0);      
     }
 

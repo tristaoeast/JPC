@@ -40,6 +40,8 @@ import java.net.URL;
 import org.jpc.emulator.PC;
 import org.jpc.support.ArgProcessor;
 
+import org.jpc.emulator.memory.codeblock.optimised.*;
+
 /**
  * 
  * @author Mike Moleschi
@@ -100,19 +102,22 @@ public class PCMonitorFrame extends JFrame implements Runnable
         file.add("Stop").addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
+                	RealModeUBlock.writeToFileUsingBuffer();
                     stop();
                 }
             });
         file.add("Reset").addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
+                    RealModeUBlock.writeToFileUsingBuffer();
                     reset();
                 }
             });
         file.addSeparator();
         file.add("Quit").addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
-                {
+                {	
+                	RealModeUBlock.writeToFileUsingBuffer();
                     System.exit(0);
                 }
             });

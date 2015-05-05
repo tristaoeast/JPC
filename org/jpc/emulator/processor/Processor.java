@@ -36,6 +36,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.jpc.emulator.memory.codeblock.optimised.*;
+
 /**
  * 
  * @author Chris Dennis
@@ -539,6 +541,7 @@ public class Processor implements HardwareComponent
         
     public void requestReset()
     {
+        //RealModeUBlock.writeToFileUsingBuffer();
         interruptFlags |= IFLAGS_RESET_REQUEST;
     }
         
@@ -883,6 +886,7 @@ public class Processor implements HardwareComponent
 
     public void reset()
     {
+    	
 	resetTime = System.currentTimeMillis();
         eax = ebx = ecx = edx = 0;
         edi = esi = ebp = esp = 0;
