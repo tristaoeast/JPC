@@ -78,7 +78,6 @@ public class RealModeUBlock implements RealModeCodeBlock
     protected int[] cumulativeX86Length;
     private int executeCount;
     public static OpcodeLogger opcodeCounter = null;//new OpcodeLogger("RM Stats:");
-    //private static final String FILEPATH = "/home/mariana/Área de Trabalho/AVExe/profiling.xls";
     private static final String FILEPATH = "./profiling.xls";
     private static boolean firstPass = true;
 	public static long[] timesMC = new long[755];
