@@ -1,0 +1,18 @@
+How to run Super Mario Bros with JPC
+
+In the shell:
+1- make application
+2- java -Xmx512m -XX:MaxPermSize=128m -jar JPCApplication.jar -fda resources/images/floppy.img hd-a resources/images/dosgames.img -boot fda
+
+In JPC:
+3- Select Disks -> HDO[none] -> Choose image -> resources -> images -> dosgames.img -> Load HDO Image
+
+Inside DOS:
+4- c -> Type Key (select ":" before hitting Type Key)
+5- cd MARIO
+6- mario
+7- hit space bar
+8- check keys -> hit space bar to start
+9- pick number of lives (hit a number in your keyboard)
+10- play
+
