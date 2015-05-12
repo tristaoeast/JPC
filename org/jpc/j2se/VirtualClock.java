@@ -32,6 +32,16 @@ import java.io.*;
 import java.util.PriorityQueue;
 import java.util.logging.*;
 import org.jpc.emulator.processor.Processor;
+/*imports for halt profiling*/
+import java.util.List;
+import java.util.ArrayList;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.io.IOException;
+
 
 /**
  * 
@@ -49,6 +59,14 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
     private long currentTime;
     private long totalTicks = 0;
     private static final boolean REALTIME = false; //sync clock with real clock
+    
+    private static final String FILEPATH = "./haltProfiling.xls";
+    
+	public static int[] count = new int[6000];
+	public static long[] sleep_time = new long[6000];
+    public static List<String> prof_list = new ArrayList<String>(); 
+    
+    public static int halt_count = 0;
 
     public VirtualClock()
     {
@@ -58,6 +76,43 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
         ticksStatic = 0;
         currentTime = getSystemTimer();
     }
+    
+    public static void haltProfilingToFile(){
+
+    	File oldFile = new File(FILEPATH);
+    	oldFile.delete();
+	
+	prof_list.add("Count\tSleep_Time");
+	for(int i  = 0; i < 6000; i++){
+		prof_list.add(String.valueOf(count[i])+"\t"+String.valueOf(sleep_time[i]));
+	}
+	
+    File file = new File(FILEPATH);
+    Writer fileWriter = null;
+    BufferedWriter bufferedWriter = null;
+
+    try{
+        fileWriter = new FileWriter(file, true);
+        bufferedWriter = new BufferedWriter(fileWriter);
+
+        for(String line : prof_list){
+            line += System.getProperty("line.separator");
+            bufferedWriter.write(line);
+        }
+    }	catch (IOException e){
+        	System.err.println("Error writing the file... ");
+        	e.printStackTrace();
+    	}	finally {
+		        if(bufferedWriter != null && fileWriter != null) {
+		            try{
+		                bufferedWriter.close();
+		                fileWriter.close();
+		            } catch (IOException e){
+		                e.printStackTrace();
+		            }
+		        }
+    		}
+    } 
 
     public void saveState(DataOutput output) throws IOException
     {
@@ -159,6 +214,7 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
     }
 
     public void updateNowAndProcess() {
+    	halt_count++;
         if (REALTIME) {
             currentTime = getSystemTimer();
             if (process())
@@ -174,7 +230,12 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
             long expiry = tempTimer.getExpiry();
             try
             {
-                Thread.sleep(Math.min((expiry - getTime()) / 1000000, 100));
+            	long timeToSleep = Math.min((expiry - getTime()) / 1000000, 100);
+                Thread.sleep(timeToSleep);
+                if(halt_count<6000){
+        			count[halt_count]=halt_count;
+        			sleep_time[halt_count]=timeToSleep;
+        		}
             } catch (InterruptedException ex)
             {
                 Logger.getLogger(VirtualClock.class.getName()).log(Level.SEVERE, null, ex);
@@ -192,7 +253,13 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
             long expiry = tempTimer.getExpiry();
             try
             {
-                Thread.sleep(Math.min((expiry - getTime()) / 1000000, 100));
+            	long timeToSleep = Math.min((expiry - getTime()) / 1000000, 100);
+                Thread.sleep(timeToSleep);
+                if(halt_count<6000){
+        			count[halt_count]=halt_count;
+        			sleep_time[halt_count]=timeToSleep;
+        		}
+                
             } catch (InterruptedException ex)
             {
                 Logger.getLogger(VirtualClock.class.getName()).log(Level.SEVERE, null, ex);

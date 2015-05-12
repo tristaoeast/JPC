@@ -41,6 +41,7 @@ import org.jpc.emulator.PC;
 import org.jpc.support.ArgProcessor;
 
 import org.jpc.emulator.memory.codeblock.optimised.*;
+import org.jpc.j2se.*;
 
 /**
  * 
@@ -103,6 +104,7 @@ public class PCMonitorFrame extends JFrame implements Runnable
                 public void actionPerformed(ActionEvent e)
                 {
                 	RealModeUBlock.writeToFileUsingBuffer();
+                	VirtualClock.haltProfilingToFile();
                     stop();
                 }
             });
@@ -110,6 +112,7 @@ public class PCMonitorFrame extends JFrame implements Runnable
                 public void actionPerformed(ActionEvent e)
                 {
                     RealModeUBlock.writeToFileUsingBuffer();
+                    VirtualClock.haltProfilingToFile();
                     reset();
                 }
             });
@@ -118,6 +121,7 @@ public class PCMonitorFrame extends JFrame implements Runnable
                 public void actionPerformed(ActionEvent e)
                 {	
                 	RealModeUBlock.writeToFileUsingBuffer();
+                	VirtualClock.haltProfilingToFile();
                     System.exit(0);
                 }
             });
